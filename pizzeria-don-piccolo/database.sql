@@ -1,114 +1,113 @@
-CREATE DATABASE pizzeria;
+CREATE DATABASE IF NOT EXISTS pizzeria;
 USE pizzeria;
-
---Tablas creadas guiadas con el modelo logico.
 
 -- PERSONA
 CREATE TABLE persona (
-    id_persona INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    nombre     VARCHAR(50) NOT NULL,
-    telefono   INT,
-    correo     VARCHAR(50),
-    tipoDoc    ENUM('C.C', 'P.S', 'C.E') NOT NULL
+    id       INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    nombre   VARCHAR(50) NOT NULL,
+    telefono VARCHAR(50),
+    correo   VARCHAR(50),
+    tipoDoc  ENUM('C.C', 'P.S', 'C.E') NOT NULL
 );
 
 -- ZONA
 CREATE TABLE zona (
-    id_zona   INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    id        INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     ubicacion VARCHAR(50) NOT NULL
 );
 
 -- PIZZA
 CREATE TABLE pizza (
-    id_pizza     INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    nombre       VARCHAR(50) NOT NULL,
-    tipo         ENUM('vege', 'espec', 'clasic') NOT NULL,
-    tamano       ENUM('peque', 'medi', 'gran')   NOT NULL,
-    precio_base  DOUBLE NOT NULL
+    id          INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    nombre      VARCHAR(50) NOT NULL,
+    tipo        ENUM('vege', 'espec', 'clasic') NOT NULL,
+    tamano      ENUM('peque', 'medi', 'gran') NOT NULL,
+    precio_base DOUBLE NOT NULL
 );
 
 -- INGREDIENTE
 CREATE TABLE ingrediente (
-    id_ingrediente INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    nombre         VARCHAR(50) NOT NULL,
-    stock          INT NOT NULL
+    id     INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL,
+    stock  INT NOT NULL
 );
+
 --tablas que tienen una llave foranea de otras tablas.
 -- CLIENTE 
 CREATE TABLE cliente (
-    id_cliente INT NOT NULL PRIMARY KEY,
-    direccion  VARCHAR(50) NOT NULL,
-    FOREIGN KEY (id_cliente) REFERENCES persona(id_persona),
+    id        INT NOT NULL PRIMARY KEY,
+    direccion VARCHAR(100) NOT NULL,
+    FOREIGN KEY (id) REFERENCES persona(id)
 );
 
 -- VENDEDOR
 CREATE TABLE vendedor (
-    id_vendedor INT NOT NULL PRIMARY KEY,
-    FOREIGN KEY (id_vendedor) REFERENCES persona(id_persona)
+    id INT NOT NULL PRIMARY KEY,
+    FOREIGN KEY (id) REFERENCES persona(id)
 );
 
 -- REPARTIDOR
 CREATE TABLE repartidor (
-    id_repartidor INT NOT NULL PRIMARY KEY,
-    id_zona       INT NOT NULL,
-    estado        ENUM('disponible', 'no_disponible') NOT NULL,
-    FOREIGN KEY (id_repartidor) REFERENCES persona(id_persona),
-    FOREIGN KEY (id_zona) REFERENCES zona(id_zona)
+    id      INT NOT NULL PRIMARY KEY,
+    id_zona INT NOT NULL,
+    estado  ENUM('disponible', 'no_disponible') NOT NULL,
+    FOREIGN KEY (id) REFERENCES persona(id),
+    FOREIGN KEY (id_zona) REFERENCES zona(id)
 );
 
 -- PEDIDO
 CREATE TABLE pedido (
-    id_pedido   INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    id          INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     id_cliente  INT NOT NULL,
     id_vendedor INT NOT NULL,
     fecha_hora  DATETIME NOT NULL,
     estado      ENUM('pendiente', 'preparación', 'entregado', 'cancelado') NOT NULL,
     total       DOUBLE NOT NULL,
-    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente),
-    FOREIGN KEY (id_vendedor) REFERENCES vendedor(id_vendedor)
+    FOREIGN KEY (id_cliente)  REFERENCES cliente(id),
+    FOREIGN KEY (id_vendedor) REFERENCES vendedor(id)
 );
 
 -- PAGO
 CREATE TABLE pago (
-    id_pago     INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    id          INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     metodo_pago ENUM('efectivo', 'tarjeta', 'app') NOT NULL,
     id_pedido   INT NOT NULL UNIQUE,
     vueltos     DOUBLE NOT NULL,
-    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido)
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id)
 );
 
 -- PIZZA_INGREDIENTE 
 CREATE TABLE pizza_ingrediente (
-    id_pizza_ingrediente INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    id_pizza             INT NOT NULL,
-    id_ingrediente       INT NOT NULL,
-    cantidad_requerida   INT NOT NULL,
-    FOREIGN KEY (id_pizza) REFERENCES pizza(id_pizza),
-    FOREIGN KEY (id_ingrediente) REFERENCES ingrediente(id_ingrediente)
+    id                 INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    id_pizza           INT NOT NULL,
+    id_ingrediente     INT NOT NULL,
+    cantidad_requerida INT NOT NULL,
+    FOREIGN KEY (id_pizza)       REFERENCES pizza(id),
+    FOREIGN KEY (id_ingrediente) REFERENCES ingrediente(id)
 );
 
 -- PEDIDO_PIZZA 
 CREATE TABLE pedido_pizza (
-    id_pedido_pizza INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    id_pizza        INT NOT NULL,
-    id_pedido       INT NOT NULL,
-    cantidad        INT NOT NULL,
-    subtotal        DOUBLE NOT NULL,
-    FOREIGN KEY (id_pizza) REFERENCES pizza(id_pizza),
-    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido)
+    id        INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    id_pizza  INT NOT NULL,
+    id_pedido INT NOT NULL,
+    cantidad  INT NOT NULL,
+    subtotal  DOUBLE NOT NULL,
+    FOREIGN KEY (id_pizza)  REFERENCES pizza(id),
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id)
 );
 
 -- DOMICILIO
 CREATE TABLE domicilio (
-    id_domicilio  INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    id            INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     id_pedido     INT NOT NULL,
     id_repartidor INT NOT NULL,
     hora_salida   DATETIME NOT NULL,
     hora_entrega  DATETIME,
     distancia     DOUBLE,
     costo_envio   DOUBLE NOT NULL,
-    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido),
-    FOREIGN KEY (id_repartidor) REFERENCES repartidor(id_repartidor)
+    FOREIGN KEY (id_pedido)     REFERENCES pedido(id),
+    FOREIGN KEY (id_repartidor) REFERENCES repartidor(id)
 );
 
 
@@ -141,12 +140,12 @@ INSERT INTO persona (nombre, telefono, correo, tipoDoc) VALUES
 -- =========================================
 -- 3. CLIENTES
 -- =========================================
-INSERT INTO cliente (id, direccion, id_zona) VALUES
-(1, 'Calle 50 #20-15', 1),           -- Ana María → Centro
-(2, 'Carrera 80 #12-40', 4),         -- Carlos → Occidente
-(3, 'Calle 10 Sur #45-20', 3),        -- Laura → Sur
-(4, 'Transversal 30 #5-80', 2),       -- Diego → Norte
-(5, 'Diagonal 75 #22A-10', 5);        -- Valeria → Noroccidente
+INSERT INTO cliente (id, direccion) VALUES
+(1, 'Calle 50 #20-15'),
+(2, 'Carrera 80 #12-40'),
+(3, 'Calle 10 Sur #45-20'),
+(4, 'Transversal 30 #5-80'),
+(5, 'Diagonal 75 #22A-10');
 
 -- =========================================
 -- 4. VENDEDORES
