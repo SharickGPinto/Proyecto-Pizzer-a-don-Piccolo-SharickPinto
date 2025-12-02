@@ -1,4 +1,4 @@
-<h1 align=center>Base de Datos (DB) CAMPUS MUSIC</h1>
+<h1 align=center>Base de Datos (DB) Pizzería don Piccolo</h1>
  
 
  <h6 align=center>Proyecto MYSQL: (Sharick Giovanna Pinto Rodriguez)</h6>
