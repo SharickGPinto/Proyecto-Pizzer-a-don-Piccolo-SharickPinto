@@ -26,7 +26,7 @@ CREATE VIEW pedidos_cliente AS
  on p.id = pe.id_cliente 
  GROUP BY pe.id_cliente;       
 
-
+CREATE VIEW desempeno_repartidor AS 
 SELECT p.nombre,
        r.id,
        z.ubicacion,
