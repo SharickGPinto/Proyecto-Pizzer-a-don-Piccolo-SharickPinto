@@ -88,5 +88,71 @@ call pizzas_mas_vendidas();
 CALL pedidos_x_repartidor();
 
 --Promedio de entrega por zona (AVG y JOIN).
+ DELIMITER //
+ CREATE PROCEDURE promedio_entrega()
+select r.id_zona,
+       z.ubicacion,
+       AVG(d.hora_entrega) as promedio_entrega 
+FROM repartidor as r  
+JOIN zona as z
+on z.id = r.id_zona  
+JOIN domicilio as d  
+on r.id = d.id_repartidor
+GROUP BY r.id_zona,
+         z.ubicacion; 
+END; //
+DELIMITER ;
 
-select AVG()
+CALL promedio_entrega();
+
+--Clientes que gastaron más de un monto (HAVING).
+DELIMITER //
+
+CREATE PROCEDURE clientes_que_gastaron_mas()
+BEGIN
+SELECT pd.id,
+      pd.nombre,
+       SUM(pd.total_gastado) as clientes_q_gastaron_mas
+from pedidos_cliente as pd  
+GROUP BY pd.id, pd.nombre
+HAVING SUM(pd.total_gastado) >1000
+ORDER BY 
+    clientes_q_gastaron_mas DESC;
+END//
+
+DELIMITER ;
+
+call clientes_que_gastaron_mas();
+
+DROP PROCEDURE clientes_que_gastaron_mas;
+
+--Búsqueda por coincidencia parcial de nombre de pizza (LIKE).
+DELIMITER //
+
+CREATE PROCEDURE busquedad_pizza(in nombre_pizza VARCHAR(100)) --se pone varchar porque es tipo texto
+BEGIN
+SELECT pi.id,
+       pi.nombre
+from pizza as pi
+WHERE pi.nombre LIKE concat('%', nombre_pizza, '%')
+ORDER BY pi.nombre;
+END; //
+DELIMITER ;
+
+CALL busquedad_pizza('');  
+
+/*Subconsulta para obtener los clientes frecuentes 
+(más de 5 pedidos mensuales).*/
+DELIMITER //
+CREATE PROCEDURE clientes_frecuentes()
+BEGIN
+SELECT pd.id,
+        pd.nombre,
+        pd.cantidad_pedidos
+FROM pedidos_cliente as pd 
+WHERE pd.cantidad_pedidos > 5;
+end; //
+DELIMITER ;
+
+CALL clientes_frecuentes();
+

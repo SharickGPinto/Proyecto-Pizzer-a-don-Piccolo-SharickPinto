@@ -19,7 +19,8 @@ Vista de stock de ingredientes por debajo del
 --cliente, cantidad de pedidos, total gastado).
 
 CREATE VIEW pedidos_cliente AS 
- select p.nombre,
+ select p.id,
+        p.nombre,
         SUM(pe.total) as total_gastado,
         COUNT(*) as cantidad_pedidos
  from persona as p 
